@@ -100,6 +100,13 @@ static void invert_image(SDL_Renderer *renderer, MyImage *image);
 bool MyWindow_initialize(MyWindow *window, const char *title, int width, int height, SDL_WindowFlags window_flags)
 {
   SDL_Log("\tMyWindow_initialize(%s, %d, %d)", title, width, height);
+
+  if (!window)
+  {
+    SDL_Log("\t\t*** Erro: Janela/renderizador inválidos (window == NULL).");
+    return false;
+  }
+
   return SDL_CreateWindowAndRenderer(title, width, height, window_flags, &window->window, &window->renderer);
 }
 
@@ -109,6 +116,13 @@ bool MyWindow_initialize(MyWindow *window, const char *title, int width, int hei
 void MyWindow_destroy(MyWindow *window)
 {
   SDL_Log(">>> MyWindow_destroy()");
+
+  if (!window)
+  {
+    SDL_Log("\t*** Erro: Janela/renderizador inválidos (window == NULL).");
+    SDL_Log("<<< MyWindow_destroy()");
+    return;
+  }
 
   SDL_Log("\tDestruindo MyWindow->renderer...");
   SDL_DestroyRenderer(window->renderer);
@@ -292,7 +306,7 @@ static SDL_AppResult initialize(void)
   SDL_Log("\tCriando janela e renderizador...");
   if (!MyWindow_initialize(&g_window, WINDOW_TITLE, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, 0))
   {
-    SDL_Log("\tErro ao criar a janela e/ou renderizador: %s", SDL_GetError());
+    SDL_Log("\t*** Erro ao criar a janela e/ou renderizador: %s", SDL_GetError());
     SDL_Log("<<< initialize()");
     return SDL_APP_FAILURE;
   }
