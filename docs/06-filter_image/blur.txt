@@ -1,0 +1,41 @@
+bool MyImage_blur(MyImage* image, SDL_Renderer *renderer, Uint32 filter_size = 3)
+
+filtro de média (passa-baixa, blur) de tamanho 3x3:
+.-----------------.
+|  1  |  1  |  1  |
+|-----|-----|-----|    1
+|  1  |  1  |  1  | * ---
+|-----|-----|-----|    9
+|  1  |  1  |  1  |
+`-----------------´
+
+const int filterFinalSize = filter_size * filter_size = 3 * 3 = 9 ---> quantidade de pixels usados pelo filtro
+const int filterHalfSize = filter_size >> 1 = 3 >> 1 = 1          ---> vizinhos ao redor do pixel atual
+const float average = 1.0f / filterFinalSize = 0.1111...          ---> peso de cada pixel do filtro
+
+índices do filtro:      índices do filtro relativo ao centro do filtro (col, row):
+.-----------------.     .--------------------------------------------------------------------.
+|  0  |  1  |  2  |     |  (col - 1, row - 1)  |  (col    , row - 1)  |  (col + 1, row - 1)  |
+|-----|-----|-----|     |----------------------|----------------------|----------------------|
+|  3  |  4  |  5  |     |  (col - 1, row    )  |  (col    , row    )  |  (col + 1, row    )  |
+|-----|-----|-----|     |----------------------|----------------------|----------------------|
+|  6  |  7  |  8  |     |  (col - 1, row + 1)  |  (col    , row + 1)  |  (col + 1, row + 1)  |
+`-----------------´     `--------------------------------------------------------------------´
+
+---> obtém os pixels da imagem que "batem" com o filtro.
+for (int rowNeighbour = -filterHalfSize; rowNeighbour <= filterHalfSize; ++rowNeighbour)
+  for (int colNeighbour = -filterHalfSize; colNeighbour <= filterHalfSize; ++colNeighbour)
+    pixels[((row + rowNeighbour) * surface->w + (col + colNeighbour))]
+
+for (int rowNeighbour = -1; rowNeighbour <= 1; ++rowNeighbour)
+  for (int colNeighbour = -1; colNeighbour <= 1; ++colNeighbour)
+    pixels[((row + rowNeighbour) * surface->w + (col + colNeighbour))]
+
+pixels[row * surface->w + col]
+row * surface->w + col ---> obtém o índice correto de um array 1D a partir de uma coordenada (x, y).
+
+ex. 
+(0, 0) = row = 0, width = 768, col = 0 ---> 0 * 768 + 0 = 0
+(0, 1) = row = 1, width = 768, col = 0 ---> 1 * 768 + 0 = 768
+(767, 0) = row = 0, width = 768, col = 767 ---> 0 * 768 + 767 = 767
+(767, 1) = row = 1, width = 768, col = 767 ---> 1 * 768 + 767 = 1535
